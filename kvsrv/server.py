@@ -21,10 +21,6 @@ logger = logging.getLogger(__name__)
 # Debug flag - set to True to enable debug logging
 DEBUG = False
 
-def DPrintf(format_str: str, *args):
-    """Debug printf matching Go implementation"""
-    if DEBUG:
-        logger.info(format_str % args)
 
 @dataclass
 class KeyValue:
@@ -54,20 +50,20 @@ class KVServer:
         Returns ErrNoKey if the key doesn't exist.
         """
         with self.mu:
-            DPrintf("KVServer.Get: key=%s", args.Key)
+            logger.debug("KVServer.Get: key=%s", args.Key)
             
             if args.Key in self.data:
                 kv = self.data[args.Key]
                 reply.Value = kv.value
                 reply.Version = kv.version
                 reply.Err = Err.OK
-                DPrintf("KVServer.Get: key=%s, value=%s, version=%d -> OK", 
+                logger.debug("KVServer.Get: key=%s, value=%s, version=%d -> OK", 
                        args.Key, reply.Value, reply.Version)
             else:
                 reply.Value = ""
                 reply.Version = 0
                 reply.Err = Err.ErrNoKey
-                DPrintf("KVServer.Get: key=%s -> ErrNoKey", args.Key)
+                logger.debug("KVServer.Get: key=%s -> ErrNoKey", args.Key)
                 
     def Put(self, args: PutArgs, reply: PutReply):
         """
@@ -80,7 +76,7 @@ class KVServer:
         - If key doesn't exist and version>0: return ErrNoKey
         """
         with self.mu:
-            DPrintf("KVServer.Put: key=%s, value=%s, version=%d", 
+            logger.debug("KVServer.Put: key=%s, value=%s, version=%d", 
                    args.Key, args.Value, args.Version)
             
             if args.Key in self.data:
@@ -91,12 +87,12 @@ class KVServer:
                     new_version = current_kv.version + 1
                     self.data[args.Key] = KeyValue(args.Value, new_version)
                     reply.Err = Err.OK
-                    DPrintf("KVServer.Put: key=%s updated, version %d -> %d", 
+                    logger.debug("KVServer.Put: key=%s updated, version %d -> %d", 
                            args.Key, args.Version, new_version)
                 else:
                     # Version mismatch
                     reply.Err = Err.ErrVersion
-                    DPrintf("KVServer.Put: key=%s version mismatch, expected=%d, got=%d -> ErrVersion", 
+                    logger.debug("KVServer.Put: key=%s version mismatch, expected=%d, got=%d -> ErrVersion", 
                            args.Key, current_kv.version, args.Version)
             else:
                 # Key doesn't exist
@@ -104,11 +100,11 @@ class KVServer:
                     # Create new key with version 1
                     self.data[args.Key] = KeyValue(args.Value, 1)
                     reply.Err = Err.OK
-                    DPrintf("KVServer.Put: key=%s created with version=1", args.Key)
+                    logger.debug("KVServer.Put: key=%s created with version=1", args.Key)
                 else:
                     # Key doesn't exist but version > 0
                     reply.Err = Err.ErrNoKey
-                    DPrintf("KVServer.Put: key=%s doesn't exist, version=%d -> ErrNoKey", 
+                    logger.debug("KVServer.Put: key=%s doesn't exist, version=%d -> ErrNoKey", 
                            args.Key, args.Version)
                     
     def Kill(self):

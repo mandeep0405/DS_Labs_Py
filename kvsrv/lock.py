@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
-Distributed Lock Implementation - FIXED VERSION
+Distributed Lock Implementation 
 Matching MIT 6.5840 Lab 2 kvsrv1/lock/lock.go
 
 This implements a distributed lock using the KV server's conditional Put operations.
 The lock uses a key to track lock state and ensures mutual exclusion across clients.
 
-FIXED: Proper handling of ErrMaybe to ensure mutual exclusion
 """
 
 import time
@@ -29,12 +28,11 @@ class IKVClerk(Protocol):
 
 class Lock:
     """
-    Distributed Lock Implementation - FIXED VERSION
+    Distributed Lock Implementation 
     
     Uses conditional Put operations on a KV server to implement mutual exclusion.
     Only one client can hold the lock at a time.
     
-    FIXED: Proper ErrMaybe handling to prevent multiple clients from thinking they hold the lock
     """
     
     def __init__(self, ck: IKVClerk, lock_key: str):
@@ -51,7 +49,7 @@ class Lock:
         
     def Acquire(self):
         """
-        Acquire the lock - FIXED VERSION
+        Acquire the lock
         
         Blocks until the lock is successfully acquired.
         Uses conditional Put to atomically acquire the lock with proper ErrMaybe handling.
@@ -101,12 +99,10 @@ class Lock:
             
     def Release(self):
         """
-        Release the lock - FIXED VERSION
+        Release the lock 
         
         Resets the lock by setting it to empty string with the current version.
         This allows other clients to acquire the lock.
-        
-        FIXED: Only release if we actually hold the lock
         """
         while True:
             # Get current lock state
@@ -162,8 +158,8 @@ def MakeLock(ck: IKVClerk, lock_key: str) -> Lock:
 
 # Test the fixed lock implementation
 def test_lock():
-    """Test the FIXED Lock implementation with a mock KV clerk"""
-    print("Testing FIXED Distributed Lock...")
+    """Test the Lock implementation with a mock KV clerk"""
+    print("Testing Distributed Lock...")
     
     class MockKVClerk:
         """Mock KV clerk for testing lock logic"""
@@ -245,7 +241,7 @@ def test_lock():
     lock2.Release()
     print("✓ Final release successful")
     
-    print("FIXED Lock test completed successfully!")
+    print("Lock test completed successfully!")
 
 
 if __name__ == "__main__":
